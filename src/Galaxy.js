@@ -9,6 +9,8 @@ const Galaxy = () => {
     var w = window.innerWidth;
     var h = window.innerHeight;
 
+    const [changing, setChanging] = useState(0)
+
     window.addEventListener('load', () => {
         var createStars = []
         for(let i = 0; i < starNumber; i++){
@@ -22,28 +24,29 @@ const Galaxy = () => {
       var repetitions = 0;
       const moving = setInterval(() => {
         if(star.x > mouse.x){
-          star.x -= 0.1
+          star.x -= 0.05
         }
         else{
-          star.x += 0.1
+          star.x += 0.05
         }
         if(star.y > mouse.y){
-          star.y -= 0.1
+          star.y -= 0.05
         }
         else{
-          star.y += 0.1
+          star.y += 0.05
         }
         repetitions++;
         if(repetitions === 10) {
           clearInterval(moving)
+          setChanging(changing + 1)
         }
       }, 10)
     }
 
     const repulseStars = (star, mouse) => {
       var repetitions = 0;
-      const xDiff  = (Math.random() / 10) 
-      const yDiff  = (Math.random() / 10)  
+      const xDiff  = (Math.ceil(Math.random() * 10) * 0.01)
+      const yDiff  = (Math.ceil(Math.random() * 10) * 0.01)
       const repulse = setInterval(() => {
         if(star.x > mouse.x){
           star.x += xDiff
@@ -58,8 +61,9 @@ const Galaxy = () => {
           star.y -= yDiff
         }
         repetitions++;
-        if(repetitions === 50) {
+        if(repetitions === 100) {
           clearInterval(repulse)
+          setChanging(changing + 1)
         }
       }, 10)
     }
@@ -79,7 +83,7 @@ const Galaxy = () => {
             }
         }
       }
-    }, [new Date()])
+    }, [changing, mousePosition, stars])
 
     return ( 
         <div className="galaxy">
