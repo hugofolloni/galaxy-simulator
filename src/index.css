@@ -6,12 +6,20 @@
 
 body {
   background-color: #090015;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
-.galaxy {
+.galaxy-wrapper{
   width: 100vw;
   height: 100vh;
+  position: absolute;
+  /* background-color: red; */
+  z-index: -2;
+}
+.galaxy {
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
   position: relative;
   /* background-color: red; */
 }
@@ -21,4 +29,8 @@ body {
   position: absolute;
   top: 0;
   left: 0; 
+}
+
+h1 {
+  color: white;
 }

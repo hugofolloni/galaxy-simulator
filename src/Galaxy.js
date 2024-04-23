@@ -1,96 +1,118 @@
 import { useState, useEffect } from "react"
+import styled from "styled-components";
 
-const Galaxy = () => {
+const Galaxy = (props) => {
 
     const [stars, setStars] = useState([])
-    const starNumber = 300;
+
+    const [ATTRACT_SPEED, ] = useState(props.attract || 0.5);
+    const [REPULSE_SPEED, ] = useState(props.repulse || 0.2);
+    const [STAR_NUMBER, ] = useState(props.quantity || 200);
 
     const mousePosition = useMousePosition()
     var w = window.innerWidth;
     var h = window.innerHeight;
 
-    const [changing, setChanging] = useState(0)
+    const [time, setTime] = useState(Date.now());
+
+    useEffect(() => {
+      setInterval(() => setTime(Date.now()), 10);
+    }, []);
 
     window.addEventListener('load', () => {
         var createStars = []
-        for(let i = 0; i < starNumber; i++){
+        for(let i = 0; i < STAR_NUMBER; i++){
             const size = Math.ceil(Math.random() * 3) + 2
-            createStars.push({x: Math.ceil(Math.random() * w), y: Math.ceil(Math.random() * h), color: 'white', size: `${size}px`, attracted: 0})
+            const x = Math.ceil(Math.random() * w);
+            const y = Math.ceil(Math.random() * h);
+            createStars.push({x: x, y: y, defaultX: x, defaultY: y, color: 'white', size: `${size}px`, attracted: false})
         }
         setStars(createStars)
     })
 
-    const moveStar = (star, mouse) => {
-      var repetitions = 0;
-      const moving = setInterval(() => {
-        if(star.x > mouse.x){
-          star.x -= 0.05
-        }
-        else{
-          star.x += 0.05
-        }
-        if(star.y > mouse.y){
-          star.y -= 0.05
-        }
-        else{
-          star.y += 0.05
-        }
-        repetitions++;
-        if(repetitions === 10) {
-          clearInterval(moving)
-          setChanging(changing + 1)
-        }
-      }, 10)
-    }
-
-    const repulseStars = (star, mouse) => {
-      var repetitions = 0;
-      const xDiff  = (Math.ceil(Math.random() * 10) * 0.01)
-      const yDiff  = (Math.ceil(Math.random() * 10) * 0.01)
-      const repulse = setInterval(() => {
-        if(star.x > mouse.x){
-          star.x += xDiff
-        }
-        else{
-          star.x -= xDiff
-        }
-        if(star.y > mouse.y){
-          star.y += yDiff
-        }
-        else{
-          star.y -= yDiff
-        }
-        repetitions++;
-        if(repetitions === 100) {
-          clearInterval(repulse)
-          setChanging(changing + 1)
-        }
-      }, 10)
-    }
-
     useEffect(() => {
-      if(stars.length > 199){
-        for(let i = 0; i < starNumber; i++){
-            if((Math.abs(mousePosition.x - stars[i].x) < 100) && (Math.abs(mousePosition.y - stars[i].y) < 100)){
+
+      const moveStar = (star, mouse) => {
+        if(!((Math.abs(mousePosition.x - star.x) < 5) && (Math.abs(mousePosition.y - star.y) < 5))){
+          if(star.x > mouse.x){
+            star.x -= ATTRACT_SPEED
+          } else {
+            star.x += ATTRACT_SPEED
+          }
+          if(star.y > mouse.y){
+            star.y -= ATTRACT_SPEED
+          } else{
+            star.y += ATTRACT_SPEED
+          }
+        }
+      }
+  
+      const repulseStars = (star) => {
+        if(!(star.x === star.defaultX && star.y === star.defaultY)){
+          if(star.x < star.defaultX){
+            star.x += REPULSE_SPEED
+          }
+          else{
+            star.x -= REPULSE_SPEED
+          }
+          if(star.y < star.defaultY){
+            star.y += REPULSE_SPEED
+          }
+          else{
+            star.y -= REPULSE_SPEED
+          }
+        }
+        else {
+          star.attracted = false
+        }
+      }
+
+      if(stars.length === STAR_NUMBER){
+        for(let i = 0; i < STAR_NUMBER; i++){
+            if(((Math.abs(mousePosition.x - stars[i].x) < 100) && (Math.abs(mousePosition.y - stars[i].y) < 100))){
               moveStar(stars[i], mousePosition)
-              stars[i].attracted = 1
+              stars[i].attracted = true
             }
             else{
-              if(stars[i].attracted === 1){
-                repulseStars(stars[i], mousePosition)
-                stars[i].attracted = 0
+              if(stars[i].attracted){
+                repulseStars(stars[i])
               }
             }
         }
       }
-    }, [changing, mousePosition, stars])
+
+    }, [time, ATTRACT_SPEED, REPULSE_SPEED, mousePosition, STAR_NUMBER, stars])
+
+    const GalaxyWrapper = styled.div`
+      width: 100vw;
+      height: 100vh;
+      position: fixed;
+      // background-color: red; 
+      z-index: -2;
+    `
+
+    const GalaxyDiv = styled.div`
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      position: relative;
+    `
+
+    const Star = styled.div`
+      border-radius: 50%;
+      position: absolute;
+      top: 0;
+      left: 0; 
+    `
 
     return ( 
-        <div className="galaxy">
-            {stars.length > 100 && stars.map((item, index) => (
-                <div className="star-div" style={{marginLeft: item.x + 'px', marginTop: item.y + "px", width: item.size, height: item.size, backgroundColor: item.color}}/>
-            ))}
-        </div>
+      <GalaxyWrapper>
+          <GalaxyDiv>
+              {stars.length > 100 && stars.map((item, index) => (
+                  <Star style={{marginLeft: item.x + 'px', marginTop: item.y + "px", width: item.size, height: item.size, backgroundColor: item.color}}/>
+              ))}
+          </GalaxyDiv>
+      </GalaxyWrapper>
      );
 }
  
@@ -99,15 +121,9 @@ const useMousePosition = () => {
   const [ mousePosition, setMousePosition] = useState({ x: null, y: null });
 
   useEffect(() => {
-    const updateMousePosition = ev => {
+    window.addEventListener('mousemove', ev => {
       setMousePosition({ x: ev.clientX, y: ev.clientY });
-    };
-    
-    window.addEventListener('mousemove', updateMousePosition);
-
-    return () => {
-      window.removeEventListener('mousemove', updateMousePosition);
-    };
+    });
   }, []);
 
   return mousePosition;
