@@ -21,7 +21,6 @@ const Presentation = () => {
         width: 500px;
         height: 500px;
         display: flex;
-        // margin-left: -50px;
         flex-direction: column;
         align-items: center;
         justify-content: space-around;
@@ -29,14 +28,29 @@ const Presentation = () => {
         animation-duration: 3s;
         animation-iteration-count: infinite;
         animation-timing-function: ease-in-out;
+        @media (max-width: 1000px){
+            width: 90%;
+        }
     `
 
     const Title = styled.span`
         font-size: 120px;
         color: #720910;
+        display: flex;
+        flex-direction: column;
+        align--items:center;
         text-align: center;
         font-weight: 700;
         line-height: 100px;
+        @media (max-width: 800px){
+            width: 90%;
+            font-size: 99px;
+            line-height: 80px
+        }
+        @media (max-width: 400px){
+            font-size: 88px;
+            line-height: 70px
+        }
     `
 
     const Span = styled.span`
@@ -53,6 +67,11 @@ const Presentation = () => {
         height: 100px;
         align-items: center;
         justify-content: space-around;
+        @media (max-width: 500px){
+            flex-direction: column;
+            margin-top: 20px;
+            height: 30vh;
+        }
     `
 
     const Button = styled.a`
@@ -69,7 +88,7 @@ const Presentation = () => {
         border: 3px solid #720910;
         transition: 0.3s ease all;
         &:hover{
-            background-color: #010914;
+            background-color: rgba(0, 0, 0, 0);
             color: #720910;
         }
     `
